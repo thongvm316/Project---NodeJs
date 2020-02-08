@@ -1,0 +1,51 @@
+@layout('layouts.app')
+
+@section('content')
+
+  <!-- Page Header -->
+  <header class="masthead" style="background-image: url('img/contact-bg.jpg')">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="page-heading">
+            <h1>New Post</h1>
+            {{--  <span class="subheading">Have questions? I have answers.</span>  --}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+      <div class="row">
+          <div class="col-md-8 offset-md-2">
+              <form action="">
+                  <div class="control-group">
+                      <div class="form-group floating-label-form-group controls">
+                        <label for="">Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="Title">
+                      </div>
+                  </div>
+                  <div class="control-group">
+                    <div class="form-group floating-label-form-group controls">
+                      <label for="">Description</label>
+                      <input type="text" name="description" class="form-control" placeholder="Description">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="form-group floating-label-form-group controls">
+                      <label for="">Content</label>
+                      <textarea name="content" placeholder="Content..." id="" cols="30" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="form-group text-center">
+                    <button class="btn btn-primary" type="submit">Create Post</button>
+                </div>
+              </form>
+          </div>
+      </div>
+  </div>
+
+@endsection
+  

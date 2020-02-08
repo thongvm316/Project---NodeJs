@@ -1,5 +1,7 @@
 @layout('layouts.app')
-@!section('content')
+
+@section('content')
+
   <!-- Page Header -->
   <header class="masthead" style="background-image: url('img/contact-bg.jpg')">
     <div class="overlay"></div>
@@ -63,4 +65,10 @@
   </div>
 
   <hr>
+
+@endsection
+
+@section('script')
+  <script src="js/jqBootstrapValidation.js"></script>
+  <script src="js/contact_me.js"></script>
 @endsection
