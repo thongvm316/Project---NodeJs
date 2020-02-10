@@ -2,40 +2,54 @@ const express = require('express');
 const path = require('path');
 const { config, engine } = require('express-edge');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const Post = require('./database/models/Post');
+
 
 const app = new express();
 
 app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(engine);
 app.set('views', `${__dirname}/views`);
 
 mongoose.connect('mongodb://localhost/Blog', { useNewUrlParser: true });
 
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     // res.sendFile(path.resolve(__dirname, 'pages/index.html'));
     // use template engine
-    res.render('index');
+    const posts = await Post.find({});
+    // console.log(posts);
+    res.render('index', {
+        posts
+    });
 });
 
 app.get('/about', (req, res) => {
-    // res.sendFile(path.resolve(__dirname, 'pages/about.html'));
     res.render('about');
 });
 
-app.get('/post', (req, res) => {
-    // res.sendFile(path.resolve(__dirname, 'pages/post.html'));
-    res.render('post');
+app.get('/post/:id', async (req, res) => {
+    const post = await Post.findById(req.params.id);
+    res.render('post', {
+        post
+    });
 });
 
 app.get('/contact', (req, res) => {
-    // res.sendFile(path.resolve(__dirname, 'pages/contact.html'));
     res.render('contact');
 });
 
 app.get('/post/new', (req, res) => {
-    // res.sendFile(path.resolve(__dirname, 'pages/contact.html'));
     res.render('create');
+});
+
+app.post('/posts/store', (req, res) => {
+    Post.create(req.body, (err, post) => {
+        res.redirect('/');
+    });
 });
 
 
