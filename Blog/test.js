@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Post = require('./database/models/Post');
 
-mongoose.connect('mongodb://localhost/test-Blog', { useNewUrlParser: true });
+mongoose.connect('mongodb://localhost/Blog', { useNewUrlParser: true });
 
 // Post.create({
 //     title: 'My second blog post',

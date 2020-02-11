@@ -4,18 +4,19 @@ const { config, engine } = require('express-edge');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const Post = require('./database/models/Post');
+const fileUpload = require('express-fileupload');
 
 
 const app = new express();
 
 app.use(express.static('public'));
+app.use(fileUpload);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(engine);
 app.set('views', `${__dirname}/views`);
 
 mongoose.connect('mongodb://localhost/Blog', { useNewUrlParser: true });
-
 
 app.get('/', async (req, res) => {
     // res.sendFile(path.resolve(__dirname, 'pages/index.html'));
@@ -31,12 +32,14 @@ app.get('/about', (req, res) => {
     res.render('about');
 });
 
-app.get('/post/:id', async (req, res) => {
-    const post = await Post.findById(req.params.id);
-    res.render('post', {
-        post
-    });
-});
+// app.get('/post/:_id', async (req, res) => {
+//     const post = await Post.findById(req.params.id);
+//     console.log(post);
+    
+//     res.render('post', {
+//         post
+//     });
+// });
 
 app.get('/contact', (req, res) => {
     res.render('contact');

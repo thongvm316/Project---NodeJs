@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const PostSchema = new mongoose.Schema({
     title: String,
     // (property) content: StringConstructor,
-    description: String,
+    subtitle: String,
     content: String,
     username: String,
     createdAt: {
