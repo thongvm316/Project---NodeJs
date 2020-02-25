@@ -3,7 +3,9 @@ const path = require('path');
 
 module.exports = (req, res) => {
     const { image } = req.files;
-    console.log(image);
+    console.log(req.files);
+    console.log(req.body);
+
 
     image.mv(path.resolve(__dirname, '..', 'public/posts', image.name), (err) => { // '..' dung de back ra ngoai, roi vao public --> posts
         // Post.create(req.body, (err, post) => {
@@ -18,3 +20,5 @@ module.exports = (req, res) => {
         });
     });
 }
+
+

@@ -16,7 +16,7 @@ const storeUserController = require('./controllers/storeUser');
 
 const app = new express();
 
-const validateCreatepostMiddleware = require('./middleware/storePost')
+const validateCreatepostMiddleware = require('./middleware/storePost');
 
 app.use(express.static('public'));
 app.use(fileUpload());
@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 app.use(engine);
 app.set('views', `${__dirname}/views`);
 
-mongoose.connect('mongodb://localhost/Blog', { useNewUrlParser: true });
+mongoose.connect('mongodb://localhost/Test', { useNewUrlParser: true });
 
 app.get('/', homePageController);
 app.get('/post/new', createPostController);
