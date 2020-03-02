@@ -13,6 +13,8 @@ const storePostController = require('./controllers/storePost');
 const getPostController = require('./controllers/getPost');
 const createUserController = require('./controllers/createUser');
 const storeUserController = require('./controllers/storeUser');
+const loginController = require('./controllers/login');
+const loginUserController = require('./controllers/loginUser');
 
 const app = new express();
 
@@ -32,7 +34,9 @@ app.get('/post/new', createPostController);
 app.get('/post/:id', getPostController);
 app.post('/posts/store', validateCreatepostMiddleware, storePostController);
 app.get('/auth/register', createUserController);
+app.get('/auth/login', loginController);
 //// su dung validate theo cach nay cung dc app.use('/posts/store', validateCreatepostMiddleware);
+app.post('/users/login', loginUserController);
 app.post('/users/register', storeUserController);
 
 app.listen(3000, () => {

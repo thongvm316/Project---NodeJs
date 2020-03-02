@@ -11,6 +11,7 @@ module.exports = (req, res) => {
         // Post.create(req.body, (err, post) => {
         //     res.redirect('/');
         // });
+        
         // dung de them filed vao tempalte, do tren web ko co truog nay
         Post.create({
             ...req.body,
