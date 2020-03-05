@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const Post = require('./database/models/Post');
 const fileUpload = require('express-fileupload');
+const expressSession = require('express-session')
 
 // Controllers
 const createPostController = require('./controllers/createPost');
@@ -17,6 +18,10 @@ const loginController = require('./controllers/login');
 const loginUserController = require('./controllers/loginUser');
 
 const app = new express();
+
+app.use(expressSession({
+    secret: 'secret'
+}))
 
 const validateCreatepostMiddleware = require('./middleware/storePost');
 
