@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const Post = require('./database/models/Post');
 const fileUpload = require('express-fileupload');
 const expressSession = require('express-session')
+const connectMongo = require("connect-mongo");
 
 // Controllers
 const createPostController = require('./controllers/createPost');
@@ -18,12 +19,18 @@ const loginController = require('./controllers/login');
 const loginUserController = require('./controllers/loginUser');
 
 const app = new express();
+mongoose.connect('mongodb://localhost/Test', { useNewUrlParser: true });
+const mongoStore = connectMongo(expressSession);  // dung de store sessions vao mongoDb // them collection, con nhung thu da hoc, them document
 
 app.use(expressSession({
-    secret: 'secret'
+    secret: 'secret',
+    store: new mongoStore({ 
+        mongooseConnection: mongoose.connection
+    })
 }))
-
+ 
 const validateCreatepostMiddleware = require('./middleware/storePost');
+const auth = require("./middleware/auth");
 
 app.use(express.static('public'));
 app.use(fileUpload());
@@ -32,12 +39,11 @@ app.use(bodyParser.json());
 app.use(engine);
 app.set('views', `${__dirname}/views`);
 
-mongoose.connect('mongodb://localhost/Test', { useNewUrlParser: true });
 
 app.get('/', homePageController);
-app.get('/post/new', createPostController);
+app.get('/post/new', auth, createPostController);
 app.get('/post/:id', getPostController);
-app.post('/posts/store', validateCreatepostMiddleware, storePostController);
+app.post('/posts/store',auth , validateCreatepostMiddleware, storePostController);
 app.get('/auth/register', createUserController);
 app.get('/auth/login', loginController);
 //// su dung validate theo cach nay cung dc app.use('/posts/store', validateCreatepostMiddleware);
