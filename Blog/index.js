@@ -5,8 +5,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const Post = require('./database/models/Post');
 const fileUpload = require('express-fileupload');
-const expressSession = require('express-session')
+const expressSession = require('express-session');
 const connectMongo = require("connect-mongo");
+const connectFlash = require('connect-flash');
 
 // Controllers
 const createPostController = require('./controllers/createPost');
@@ -20,6 +21,7 @@ const loginUserController = require('./controllers/loginUser');
 
 const app = new express();
 mongoose.connect('mongodb://localhost/Test', { useNewUrlParser: true });
+app.use(connectFlash());
 const mongoStore = connectMongo(expressSession);  // dung de store sessions vao mongoDb // them collection, con nhung thu da hoc, them document
 
 app.use(expressSession({
