@@ -33,6 +33,7 @@ app.use(expressSession({
  
 const validateCreatepostMiddleware = require('./middleware/storePost');
 const auth = require("./middleware/auth");
+const redirectAuthenticated = require('./middleware/redirectAuthenticated') 
 
 app.use(express.static('public'));
 app.use(fileUpload());
@@ -46,11 +47,11 @@ app.get('/', homePageController);
 app.get('/post/new', auth, createPostController);
 app.get('/post/:id', getPostController);
 app.post('/posts/store',auth , validateCreatepostMiddleware, storePostController);
-app.get('/auth/register', createUserController);
-app.get('/auth/login', loginController);
+app.get('/auth/register', redirectAuthenticated, redirectAuthenticated, createUserController);
+app.get('/auth/login', redirectAuthenticated, loginController);
 //// su dung validate theo cach nay cung dc app.use('/posts/store', validateCreatepostMiddleware);
-app.post('/users/login', loginUserController);
-app.post('/users/register', storeUserController);
+app.post('/users/login', redirectAuthenticated, loginUserController);
+app.post('/users/register', redirectAuthenticated,  storeUserController);
 
 app.listen(3000, () => {
     console.log('Listening port 3000');
