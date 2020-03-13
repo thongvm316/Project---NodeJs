@@ -6,7 +6,12 @@ const PostSchema = new mongoose.Schema({
     // (property) content: StringConstructor,
     subtitle: String,
     content: String,
-    username: String,
+    // username: String bo di, ?
+    author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // tham chieu den User collection
+        required: true
+    },
     image: String,
     createdAt: {
         type: Date,

@@ -15,7 +15,8 @@ module.exports = (req, res) => {
         // dung de them filed vao tempalte, do tren web ko co truog nay
         Post.create({
             ...req.body,
-            image: `/posts/${image.name}`
+            image: `/posts/${image.name}`,
+            author: req.session.userId
         }, (err, post) => {
             res.redirect('/');
         });

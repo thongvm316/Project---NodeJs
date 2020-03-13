@@ -8,6 +8,7 @@ const fileUpload = require('express-fileupload');
 const expressSession = require('express-session');
 const connectMongo = require("connect-mongo");
 const connectFlash = require('connect-flash');
+// const edge = require('edge.js'); tim hieu sau
 
 // Controllers
 const createPostController = require('./controllers/createPost');
@@ -18,6 +19,7 @@ const createUserController = require('./controllers/createUser');
 const storeUserController = require('./controllers/storeUser');
 const loginController = require('./controllers/login');
 const loginUserController = require('./controllers/loginUser');
+const logoutController = require('./controllers/logout');
 
 const app = new express();
 mongoose.connect('mongodb://localhost/Test', { useNewUrlParser: true });
@@ -31,8 +33,9 @@ app.use(expressSession({
     })
 }))
  
+// middleware
 const validateCreatepostMiddleware = require('./middleware/storePost');
-const auth = require("./middleware/auth");
+const auth = require("./middleware/auth"); // chua biet de lam go
 const redirectAuthenticated = require('./middleware/redirectAuthenticated') 
 
 app.use(express.static('public'));
@@ -42,17 +45,24 @@ app.use(bodyParser.json());
 app.use(engine);
 app.set('views', `${__dirname}/views`);
 
+// app.use('*', (req, res, next) => {
+//     edge.global('auth', req.session.userId);
+//     next();
+// }) tim hieu sau
+
 
 app.get('/', homePageController);
-app.get('/post/new', auth, createPostController);
+app.get('/post/new', createPostController);
 app.get('/post/:id', getPostController);
-app.post('/posts/store',auth , validateCreatepostMiddleware, storePostController);
-app.get('/auth/register', redirectAuthenticated, redirectAuthenticated, createUserController);
+app.post('/posts/store', storePostController);
+app.get('/auth/register', redirectAuthenticated, createUserController);
 app.get('/auth/login', redirectAuthenticated, loginController);
+app.get('/auth/logout', logoutController);
 //// su dung validate theo cach nay cung dc app.use('/posts/store', validateCreatepostMiddleware);
-app.post('/users/login', redirectAuthenticated, loginUserController);
-app.post('/users/register', redirectAuthenticated,  storeUserController);
+app.post('/users/login', loginUserController);
+app.post('/users/register', storeUserController);
 
 app.listen(3000, () => {
     console.log('Listening port 3000');
 });
+

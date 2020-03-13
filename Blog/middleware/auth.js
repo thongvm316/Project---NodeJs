@@ -2,10 +2,10 @@ const User = require("../database/models/User")
 
 module.exports = (req, res, next) => {
     // fetch user from dbs
-     User.findById(req.session.UserId, (err, user) => {
-         if (err) {
-             console.log(err)
-             console.log("test:" + req.session.UserId)
+     User.findById(req.session.userId, (err, user) => {
+         if (err || !user) {
+            //  console.log(err)
+            //  console.log("test:" + req.session.userId)
              return res.redirect('/') 
          }
 
@@ -16,3 +16,4 @@ module.exports = (req, res, next) => {
     // esle redirect
 
 }
+// chua biet de lam gi
