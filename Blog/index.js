@@ -1,3 +1,5 @@
+require('dotenv').config();
+// console.log(process.env);
 const express = require('express');
 const path = require('path');
 const { config, engine } = require('express-edge');
@@ -7,6 +9,7 @@ const Post = require('./database/models/Post');
 const fileUpload = require('express-fileupload');
 const expressSession = require('express-session');
 const connectMongo = require("connect-mongo");
+const cloudinary = require('cloudinary');
 const connectFlash = require('connect-flash');
 // const edge = require('edge.js'); tim hieu sau
 
@@ -22,12 +25,19 @@ const loginUserController = require('./controllers/loginUser');
 const logoutController = require('./controllers/logout');
 
 const app = new express();
-mongoose.connect('mongodb://localhost/Test', { useNewUrlParser: true });
+mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 app.use(connectFlash());
+
+cloudinary.config({
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: process.env.CLOUDINARY_NAME
+})
+
 const mongoStore = connectMongo(expressSession);  // dung de store sessions vao mongoDb // them collection, con nhung thu da hoc, them document
 
 app.use(expressSession({
-    secret: 'secret',
+    secret: process.env.EXPRESS_SESSION_KEY,
     store: new mongoStore({ 
         mongooseConnection: mongoose.connection
     })
@@ -61,8 +71,9 @@ app.get('/auth/logout', logoutController);
 //// su dung validate theo cach nay cung dc app.use('/posts/store', validateCreatepostMiddleware);
 app.post('/users/login', loginUserController);
 app.post('/users/register', storeUserController);
+app.use((req, res) => {res.render('not-found')})
 
-app.listen(3000, () => {
-    console.log('Listening port 3000');
+app.listen(process.env.PORT, () => {
+    console.log(`Listening port ${process.env.PORT}`);
 });
 
