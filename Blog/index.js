@@ -3,9 +3,11 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { config, engine } = require('express-edge');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const Post = require('./database/models/Post');
+// const Post = require('./database/models/Post');
+const mongoose = require('mongoose');
+
+
 const fileUpload = require('express-fileupload');
 const expressSession = require('express-session');
 const connectMongo = require("connect-mongo");
@@ -63,9 +65,9 @@ app.set('views', `${__dirname}/views`);
 
 app.get('/', homePageController);
 app.get('/post/new', createPostController);
-app.get('/post/:id', getPostController);
-app.post('/posts/store', storePostController);
-app.get('/auth/register', redirectAuthenticated, createUserController);
+app.get('/post/:idddd', getPostController);
+app.post('/posts/store', validateCreatepostMiddleware, storePostController);
+app.get('/auth/register', createUserController);
 app.get('/auth/login', redirectAuthenticated, loginController);
 app.get('/auth/logout', logoutController);
 //// su dung validate theo cach nay cung dc app.use('/posts/store', validateCreatepostMiddleware);

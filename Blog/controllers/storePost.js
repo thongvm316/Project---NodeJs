@@ -12,17 +12,17 @@ module.exports = (req, res) => {
         if (err) {
           return res.redirect('/')
         }
-        cloudinary.v2.uploader.upload(uploadPath, (err, result) => {
-            Post.create({
-                ...req.body,
-                image: result.secure_url, // thay the 54
-                author: req.session.userId
-                //image: `/posts/${image.name}`
-            }, (err, post) => {
-                console.log(post);
-                res.redirect('/');
-            }); 
-        });    
+        // cloudinary.v2.uploader.upload(uploadPath, (err, result) => {
+            
+        // });   
+        Post.create({
+            ...req.body,
+            image: `/posts/${image.name}`, //image: result.secure_url, // thay the 20
+            author: req.session.userId
+        }, (err, post) => {
+            // console.log(post);
+            res.redirect('/');
+        }); 
         // '..' ]dung de back ra ngoai, roi vao public --> posts
         // Post.create(req.body, (err, post) => {
         //     res.redirect('/');
