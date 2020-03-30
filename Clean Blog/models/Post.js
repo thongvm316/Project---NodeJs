@@ -10,7 +10,7 @@ const PostSchema = new mongoose.Schema({
         type: Date,
         default: new Date()
     }
-});
+}, { collection: 'UserPost' });
 
 const Post = mongoose.model('Post', PostSchema);
 module.exports = Post;
