@@ -1,8 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-var multer = require('multer');
+const multer = require('multer');
 
+
+// Middleware
+const storePostMiddleware = require('./middleware/storePost')
 
 // Model Mongoose
 const Post = require('./models/Post');
@@ -31,6 +34,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+
 /* -------------------Render--------------------- */
 app.get('/', (req, res) => {
     Post.find({}, (err, data) => {
@@ -49,16 +53,20 @@ app.get('/post/:id', (req, res) => {
     })
 })
 
-app.post('/posts/store', upload.single('image'), (req, res) => {    
-    console.log(req.file.originalname)
-    Post.create({
-        ...req.body,
-    }, (err, post) => {
-        return res.redirect('/');
-    });       
+app.get('/register', (req, res) => {
+    res.render('register')
 })
 
-
+app.post('/posts/store', upload.single('image'), storePostMiddleware, (req, res) => {    
+    // Co the su dung middleware theo cach nay: app.use('/posts/store', validateCreatepostMiddleware);
+    let img = req.file.filename;
+    Post.create({
+        ...req.body,
+        image: `/img/${img}`
+    }, (err, post) => {
+         res.redirect('/');
+    });       
+})
 
 const port = 4000;
 app.listen(4000, () => {
