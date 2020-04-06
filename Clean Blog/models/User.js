@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+var md5 = require('md5');
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -16,18 +17,17 @@ const UserSchema = new mongoose.Schema({
     }
 }, { collection: 'UserRegister' })
 
-// Use middleware Pre to hash password...
+UserSchema.pre('save', function (next) { 
+    const user = this;
+    // console.log(user);
+    const hashPassword = md5(user.password);
+    console.log(hashPassword);
+    next();
+})
 
-// UserSchema.pre('save', function (next) { 
-//     const user = this;
-//     console.log(user);
-//     //10, 100
-//     bcrypt.hash(user.password, 10, function (error, encrypted) { 
-//         user.password = encrypted;
-//         console.log(user.password);
-        
-//         next();
-//     })
-// })
+const User = mongoose.model('User', UserSchema);
 
-module.exports = mongoose.model('User', UserSchema)
+module.exports = User;
+
+
+

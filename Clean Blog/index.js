@@ -9,6 +9,7 @@ const storePostMiddleware = require('./middleware/storePost')
 
 // Model Mongoose
 const Post = require('./models/Post');
+const User = require('./models/User')
 
 const app = new express();
 mongoose.connect('mongodb://localhost/portfolio', { useNewUrlParser: true });
@@ -67,6 +68,37 @@ app.post('/posts/store', upload.single('image'), storePostMiddleware, (req, res)
          res.redirect('/');
     });       
 })
+
+app.post('/users/register', (req, res) => {
+    User.create(req.body, (error, user) => {
+       if(error) { console.log(Object.keys(error.errors)) }
+        res.redirect('/')
+    })
+})
+
+app.get('/auth/login', (req, res) => {
+    res.render('login')
+})
+
+app.post('/users/login', (req, res) => {
+    const { email, password } = req.body
+    console.log({ email, password})
+    User.findOne({ email }, (err, posts) => {
+        console.log(posts)
+        if (err) {
+            return res.redirect('/auth/login')
+        }
+        if (password === posts.password) {
+             res.redirect('/')
+        } else {
+             res.redirect('/auth/login')
+        }
+    });
+})
+
+
+
+
 
 const port = 4000;
 app.listen(4000, () => {
