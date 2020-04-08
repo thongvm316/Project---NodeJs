@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-var md5 = require('md5');
+var bcrypt = require('bcrypt')
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -20,14 +20,17 @@ const UserSchema = new mongoose.Schema({
 UserSchema.pre('save', function (next) { 
     const user = this;
     // console.log(user);
-    const hashPassword = md5(user.password);
-    console.log(hashPassword);
-    next();
+    //10, 100
+    bcrypt.hash(user.password, 10, function (error, hash) { 
+        user.password = hash;
+        console.log(user.password);
+        next();
+    })
 })
 
-const User = mongoose.model('User', UserSchema);
+// const User = mongoose.model('User', UserSchema);
 
-module.exports = User;
+module.exports =  mongoose.model('User', UserSchema);
 
 
 

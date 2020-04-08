@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const bcrypt = require('bcrypt');
+const expressSession = require('express-session');
+
 
 
 // Middleware
@@ -12,6 +15,11 @@ const Post = require('./models/Post');
 const User = require('./models/User')
 
 const app = new express();
+
+app.use(expressSession({
+    secret: 'ThongVM'
+}))
+
 mongoose.connect('mongodb://localhost/portfolio', { useNewUrlParser: true });
 
 // Multer
@@ -39,13 +47,16 @@ app.use(express.static('public'));
 /* -------------------Render--------------------- */
 app.get('/', (req, res) => {
     Post.find({}, (err, data) => {
-        // console.log(data[1])
+        console.log(req.session)
         res.render('index', { data })
     }) 
 })
 
 app.get('/post/new', (req, res) => {
-    res.render('createpost')
+    if (req.session.UserId) {
+        return res.render('createpost')
+    }
+    res.redirect('/auth/login')
 })
 
 app.get('/post/:id', (req, res) => {
@@ -82,19 +93,21 @@ app.get('/auth/login', (req, res) => {
 
 app.post('/users/login', (req, res) => {
     const { email, password } = req.body
-    console.log({ email, password})
-    User.findOne({ email }, (err, posts) => {
-        console.log(posts)
-        if (err) {
-            return res.redirect('/auth/login')
-        }
-        if (password === posts.password) {
-             res.redirect('/')
-        } else {
-             res.redirect('/auth/login')
-        }
+    User.findOne({ email }, (err, user) => {
+       if (user) {
+           bcrypt.compare(password, user.password, (err, same) => {
+                if (same) {
+                    req.session.UserId = user._id;
+                    res.redirect('/');
+                } else {
+                    res.redirect('/auth/login');
+                }
+           })
+       } else {
+           return res.redirect('/auth/login');
+       }
     });
-})
+});
 
 
 
