@@ -16,10 +16,6 @@ const User = require('./models/User')
 
 const app = new express();
 
-app.use(expressSession({
-    secret: 'ThongVM'
-}))
-
 mongoose.connect('mongodb://localhost/portfolio', { useNewUrlParser: true });
 
 // Multer
@@ -41,6 +37,9 @@ app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(expressSession({
+    secret: 'ThongVM'
+}))
 app.use(express.static('public'));
 
 
@@ -65,10 +64,6 @@ app.get('/post/:id', (req, res) => {
     })
 })
 
-app.get('/register', (req, res) => {
-    res.render('register')
-})
-
 app.post('/posts/store', upload.single('image'), storePostMiddleware, (req, res) => {    
     // Co the su dung middleware theo cach nay: app.use('/posts/store', validateCreatepostMiddleware);
     let img = req.file.filename;
@@ -80,12 +75,10 @@ app.post('/posts/store', upload.single('image'), storePostMiddleware, (req, res)
     });       
 })
 
-app.post('/users/register', (req, res) => {
-    User.create(req.body, (error, user) => {
-       if(error) { console.log(Object.keys(error.errors)) }
-        res.redirect('/')
-    })
+app.get('/register', (req, res) => {
+    res.render('register')
 })
+
 
 app.get('/auth/login', (req, res) => {
     res.render('login')
@@ -96,10 +89,12 @@ app.post('/users/login', (req, res) => {
     User.findOne({ email }, (err, user) => {
        if (user) {
            bcrypt.compare(password, user.password, (err, same) => {
-                if (same) {
+                if (password == user.password) {
+                    console.log("Love...")
                     req.session.UserId = user._id;
                     res.redirect('/');
                 } else {
+                    console.log("Hate..." + err)
                     res.redirect('/auth/login');
                 }
            })
@@ -108,6 +103,18 @@ app.post('/users/login', (req, res) => {
        }
     });
 });
+
+
+app.post('/users/register', (req, res) => {
+    User.create(req.body, (error, user) => {
+        console.log(req.body)
+       if(error) { 
+           console.log(Object.keys(error.errors));
+           return res.redirect('/register');
+        }
+        res.redirect('/auth/login')
+    })
+})
 
 
 
