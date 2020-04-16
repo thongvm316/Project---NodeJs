@@ -4,11 +4,12 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const bcrypt = require('bcrypt');
 const expressSession = require('express-session');
-
-
+const connectMongo = require('connect-mongo');;
 
 // Middleware
 const storePostMiddleware = require('./middleware/storePost')
+const authMiddleware = require('./middleware/auth')
+// const checkHomePageMiddleware = require('./middleware/checkHomePage');
 
 // Model Mongoose
 const Post = require('./models/Post');
@@ -29,16 +30,19 @@ var storage = multer.diskStorage({
   });
 var upload = multer({ storage: storage })
 
-
-
 // view engine setup
 app.set('views', './views');
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+const mongoStore = connectMongo(expressSession);
 app.use(expressSession({
-    secret: 'ThongVM'
+    secret: 'ThongVM',
+    store: new mongoStore({
+        mongooseConnection: mongoose.connection
+    })
 }))
 app.use(express.static('public'));
 
@@ -46,13 +50,13 @@ app.use(express.static('public'));
 /* -------------------Render--------------------- */
 app.get('/', (req, res) => {
     Post.find({}, (err, data) => {
-        console.log(req.session)
+        console.log(req.session.userId)
         res.render('index', { data })
     }) 
 })
 
 app.get('/post/new', (req, res) => {
-    if (req.session.UserId) {
+    if (req.session.userId) {
         return res.render('createpost')
     }
     res.redirect('/auth/login')
@@ -75,12 +79,12 @@ app.post('/posts/store', upload.single('image'), storePostMiddleware, (req, res)
     });       
 })
 
-app.get('/register', (req, res) => {
+app.get('/register' ,authMiddleware ,(req, res) => {
     res.render('register')
 })
 
 
-app.get('/auth/login', (req, res) => {
+app.get('/auth/login', authMiddleware, (req, res) => {
     res.render('login')
 })
 
@@ -90,11 +94,9 @@ app.post('/users/login', (req, res) => {
        if (user) {
            bcrypt.compare(password, user.password, (err, same) => {
                 if (password == user.password) {
-                    console.log("Love...")
-                    req.session.UserId = user._id;
+                    req.session.userId = user._id;
                     res.redirect('/');
                 } else {
-                    console.log("Hate..." + err)
                     res.redirect('/auth/login');
                 }
            })
@@ -104,20 +106,22 @@ app.post('/users/login', (req, res) => {
     });
 });
 
-
 app.post('/users/register', (req, res) => {
     User.create(req.body, (error, user) => {
-        console.log(req.body)
+        // console.log(req.body)
        if(error) { 
-           console.log(Object.keys(error.errors));
+        //    console.log(Object.keys(error.errors));
            return res.redirect('/register');
         }
         res.redirect('/auth/login')
     })
 })
 
-
-
+app.get('/auth/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/auth/login')
+    })
+})
 
 
 const port = 4000;

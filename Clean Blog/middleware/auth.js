@@ -1,3 +1,7 @@
-const AuthMiddleware = (req, res) => {
-    
+module.exports = (req, res, next) => {
+   if (req.session.userId) {
+       console.log(req.session.userId);
+       return res.redirect('/')
+   } 
+   next();
 }
