@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const bcrypt = require('bcrypt');
 const expressSession = require('express-session');
-const connectMongo = require('connect-mongo');;
+const connectMongo = require('connect-mongo');
+const connectFlah = require('connect-flash');;
 
 // Middleware
 const storePostMiddleware = require('./middleware/storePost')
@@ -18,6 +19,7 @@ const User = require('./models/User')
 const app = new express();
 
 mongoose.connect('mongodb://localhost/portfolio', { useNewUrlParser: true });
+app.use(connectFlah());
 
 // Multer
 var storage = multer.diskStorage({
@@ -50,7 +52,7 @@ app.use(express.static('public'));
 /* -------------------Render--------------------- */
 app.get('/', (req, res) => {
     Post.find({}, (err, data) => {
-        console.log(req.session.userId)
+        // console.log(req.session.userId)
         res.render('index', { data })
     }) 
 })
@@ -79,9 +81,7 @@ app.post('/posts/store', upload.single('image'), storePostMiddleware, (req, res)
     });       
 })
 
-app.get('/register' ,authMiddleware ,(req, res) => {
-    res.render('register')
-})
+
 
 
 app.get('/auth/login', authMiddleware, (req, res) => {
@@ -106,11 +106,22 @@ app.post('/users/login', (req, res) => {
     });
 });
 
+app.get('/register' ,authMiddleware ,(req, res) => {
+    console.log( req.flash('data')[0]);
+    res.render('register', {
+        errors:  req.flash('registerErrors'),
+        data: req.flash('data')[0]
+    })
+})
+
 app.post('/users/register', (req, res) => {
     User.create(req.body, (error, user) => {
         // console.log(req.body)
        if(error) { 
-        //    console.log(Object.keys(error.errors));
+           const registerErrors = Object.keys(error.errors).map(key => error.errors[key].message);
+            //    req.session.registerErrors = registerErrors;
+            req.flash('registerErrors', registerErrors)
+            req.flash('data', req.body)
            return res.redirect('/register');
         }
         res.redirect('/auth/login')

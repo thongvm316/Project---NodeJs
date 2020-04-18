@@ -18,15 +18,22 @@
   <div class="container">
       <div class="row">
           <div class="col-md-8 offset-md-2">
+            <% if (errors.length > 0) { %>
+              <ul class="list-group">
+                <% errors.forEach((data) => { %>
+                  <li class="list-group-item text-danger"> <%= data %></li>  
+                <% }) %>
+              </ul>
+            <% } %>
               <form action="/users/register" method="POST" >
                   <div class="control-group">
                     <div class="form-group floating-label-form-group controls">
                       <label for="">Username</label>
-                    <input type="text" name="username" value="" class="form-control" placeholder="Username">
+                    <input type="text" name="username" value=" <%= data.username || '' %>" class="form-control" placeholder="Username">
                     </div>
-                  </div>
+                  </div> 
                   <div class="control-group">
-                      <div class="form-group floating-label-form-group controls">
+                      <div class="form-group floating-label-form-group  controls">
                         <label for="">Email</label>
                         <input type="email" name="email" value="" class="form-control" placeholder="Email">
                       </div>
