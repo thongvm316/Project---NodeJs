@@ -107,10 +107,11 @@ app.post('/users/login', (req, res) => {
 });
 
 app.get('/register' ,authMiddleware ,(req, res) => {
-    console.log( req.flash('data')[0]);
+    const db = req.flash('data')[0];
+    const errors = req.flash('registerErrors');
+    console.log(db);
     res.render('register', {
-        errors:  req.flash('registerErrors'),
-        data: req.flash('data')[0]
+        errors, db  
     })
 })
 
