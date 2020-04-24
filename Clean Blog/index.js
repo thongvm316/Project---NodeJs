@@ -52,9 +52,9 @@ app.use(express.static('public'));
 /* -------------------Render--------------------- */
 app.get('/', (req, res) => {
     Post.find({}, (err, data) => {
-        // console.log(req.session.userId)
+        console.log(data);
         res.render('index', { data })
-    }) 
+    }).populate('user_id') 
 })
 
 app.get('/post/new', (req, res) => {
@@ -67,18 +67,22 @@ app.get('/post/new', (req, res) => {
 app.get('/post/:id', (req, res) => {
     Post.findById(req.params.id, (err, data) => {
         res.render('post', { data })
-    })
+    }).populate('user_id')
 })
 
 app.post('/posts/store', upload.single('image'), storePostMiddleware, (req, res) => {    
     // Co the su dung middleware theo cach nay: app.use('/posts/store', validateCreatepostMiddleware);
     let img = req.file.filename;
+    let session = req.session.userId;
     Post.create({
         ...req.body,
-        image: `/img/${img}`
+        image: `/img/${img}`,
+        user_id: session,
     }, (err, post) => {
+        // console.log(req.session.userId);
          res.redirect('/');
-    });       
+    });
+
 })
 
 
@@ -93,7 +97,7 @@ app.post('/users/login', (req, res) => {
     User.findOne({ email }, (err, user) => {
        if (user) {
            bcrypt.compare(password, user.password, (err, same) => {
-                if (password == user.password) {
+                if (same) {
                     req.session.userId = user._id;
                     res.redirect('/');
                 } else {

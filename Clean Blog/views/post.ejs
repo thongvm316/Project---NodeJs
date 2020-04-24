@@ -11,7 +11,7 @@
             <h1><%= data.title %></h1>
             <h2 class="subheading"><%=data.subtitle%></h2>
             <span class="meta">Posted by
-              <a href="#">Start Bootstrap</a>
+              <a href="#"><%= data.user_id.username %></a>
               <%=data.createAt.toDateString() %></span>
           </div>
         </div>
