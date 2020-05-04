@@ -23,7 +23,7 @@ UserSchema.pre('save', function (next) {
     //10, 100
     bcrypt.hash(user.password, 10, function (error, encrypted) { 
         user.password = encrypted;
-        console.log("bcrypt: " + user.password);
+        // console.log("bcrypt: " + user.password);
         next();
     })
 })

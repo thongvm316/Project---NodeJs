@@ -1,3 +1,5 @@
+require('dotenv').config();
+// console.log(process.env);
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -6,6 +8,9 @@ const bcrypt = require('bcrypt');
 const expressSession = require('express-session');
 const connectMongo = require('connect-mongo');
 const connectFlah = require('connect-flash');;
+
+// Router
+const indexRouter = require('./routes/index');
 
 // Middleware
 const storePostMiddleware = require('./middleware/storePost')
@@ -18,7 +23,7 @@ const User = require('./models/User')
 
 const app = new express();
 
-mongoose.connect('mongodb://localhost/portfolio', { useNewUrlParser: true });
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true });
 app.use(connectFlah());
 
 // Multer
@@ -41,7 +46,7 @@ app.use(bodyParser.json());
 
 const mongoStore = connectMongo(expressSession);
 app.use(expressSession({
-    secret: 'ThongVM',
+    secret: process.env.EXPRESS_SESSION_KEY,
     store: new mongoStore({
         mongooseConnection: mongoose.connection
     })
@@ -50,12 +55,7 @@ app.use(express.static('public'));
 
 
 /* -------------------Render--------------------- */
-app.get('/', (req, res) => {
-    Post.find({}, (err, data) => {
-        console.log(data);
-        res.render('index', { data })
-    }).populate('user_id') 
-})
+app.use('/', indexRouter)
 
 app.get('/post/new', (req, res) => {
     if (req.session.userId) {
@@ -72,17 +72,14 @@ app.get('/post/:id', (req, res) => {
 
 app.post('/posts/store', upload.single('image'), storePostMiddleware, (req, res) => {    
     // Co the su dung middleware theo cach nay: app.use('/posts/store', validateCreatepostMiddleware);
-    let img = req.file.filename;
-    let session = req.session.userId;
     Post.create({
         ...req.body,
-        image: `/img/${img}`,
-        user_id: session,
+        image: `/img/${req.file.filename}`,
+        user_id: req.session.userId,
     }, (err, post) => {
-        // console.log(req.session.userId);
+         console.log(req.session.userId);
          res.redirect('/');
     });
-
 })
 
 
@@ -95,10 +92,12 @@ app.get('/auth/login', authMiddleware, (req, res) => {
 app.post('/users/login', (req, res) => {
     const { email, password } = req.body
     User.findOne({ email }, (err, user) => {
+        console.log(user);
        if (user) {
            bcrypt.compare(password, user.password, (err, same) => {
                 if (same) {
                     req.session.userId = user._id;
+                    console.log(req.session.userId);
                     res.redirect('/');
                 } else {
                     res.redirect('/auth/login');
@@ -113,7 +112,7 @@ app.post('/users/login', (req, res) => {
 app.get('/register' ,authMiddleware ,(req, res) => {
     const db = req.flash('data')[0];
     const errors = req.flash('registerErrors');
-    console.log(db);
+    // console.log(db);
     res.render('register', {
         errors, db  
     })
@@ -139,6 +138,15 @@ app.get('/auth/logout', (req, res) => {
     })
 })
 
+app.get('/auth/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/auth/login')
+    })
+})
+
+app.use((req, res) => {
+    res.render('not-found')
+})
 
 const port = 4000;
 app.listen(4000, () => {
