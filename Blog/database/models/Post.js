@@ -7,7 +7,7 @@ const PostSchema = new mongoose.Schema({
     subtitle: String,
     content: String,
     // username: String bo di, ?
-    author: {
+    author: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', // tham chieu den User collection
         required: true
