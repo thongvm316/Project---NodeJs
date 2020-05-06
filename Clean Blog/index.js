@@ -1,5 +1,4 @@
 require('dotenv').config();
-// console.log(process.env);
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -7,10 +6,19 @@ const multer = require('multer');
 const bcrypt = require('bcrypt');
 const expressSession = require('express-session');
 const connectMongo = require('connect-mongo');
-const connectFlah = require('connect-flash');;
+const connectFlah = require('connect-flash');
 
-// Router
-const indexRouter = require('./routes/index');
+// Controllers
+const homePageController = require('./controllers/homepage');
+const createPostController = require('./controllers/createpost');
+const getPostController = require('./controllers/getpost');
+const storePostController = require('./controllers/storepost');
+const loginPageController = require('./controllers/loginpage');
+const checkLoginUserController = require('./controllers/checkloginuser');
+const registerPageController = require('./controllers/registerpage');
+const createUserController = require('./controllers/createuser');
+const logoutController = require('./controllers/logout');
+
 
 // Middleware
 const storePostMiddleware = require('./middleware/storePost')
@@ -19,7 +27,7 @@ const authMiddleware = require('./middleware/auth')
 
 // Model Mongoose
 const Post = require('./models/Post');
-const User = require('./models/User')
+const User = require('./models/User');
 
 const app = new express();
 
@@ -27,7 +35,7 @@ mongoose.connect(process.env.DB_URI, { useNewUrlParser: true });
 app.use(connectFlah());
 
 // Multer
-var storage = multer.diskStorage({
+const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, './public/img')
     },
@@ -35,7 +43,7 @@ var storage = multer.diskStorage({
       cb(null, Date.now() + '-' + file.originalname)
     }
   });
-var upload = multer({ storage: storage })
+const upload = multer({ storage: storage })
 
 // view engine setup
 app.set('views', './views');
@@ -53,97 +61,16 @@ app.use(expressSession({
 }))
 app.use(express.static('public'));
 
-
-/* -------------------Render--------------------- */
-app.use('/', indexRouter)
-
-app.get('/post/new', (req, res) => {
-    if (req.session.userId) {
-        return res.render('createpost')
-    }
-    res.redirect('/auth/login')
-})
-
-app.get('/post/:id', (req, res) => {
-    Post.findById(req.params.id, (err, data) => {
-        res.render('post', { data })
-    }).populate('user_id')
-})
-
-app.post('/posts/store', upload.single('image'), storePostMiddleware, (req, res) => {    
-    // Co the su dung middleware theo cach nay: app.use('/posts/store', validateCreatepostMiddleware);
-    Post.create({
-        ...req.body,
-        image: `/img/${req.file.filename}`,
-        user_id: req.session.userId,
-    }, (err, post) => {
-         console.log(req.session.userId);
-         res.redirect('/');
-    });
-})
-
-
-
-
-app.get('/auth/login', authMiddleware, (req, res) => {
-    res.render('login')
-})
-
-app.post('/users/login', (req, res) => {
-    const { email, password } = req.body
-    User.findOne({ email }, (err, user) => {
-        console.log(user);
-       if (user) {
-           bcrypt.compare(password, user.password, (err, same) => {
-                if (same) {
-                    req.session.userId = user._id;
-                    console.log(req.session.userId);
-                    res.redirect('/');
-                } else {
-                    res.redirect('/auth/login');
-                }
-           })
-       } else {
-           return res.redirect('/auth/login');
-       }
-    });
-});
-
-app.get('/register' ,authMiddleware ,(req, res) => {
-    const db = req.flash('data')[0];
-    const errors = req.flash('registerErrors');
-    // console.log(db);
-    res.render('register', {
-        errors, db  
-    })
-})
-
-app.post('/users/register', (req, res) => {
-    User.create(req.body, (error, user) => {
-        // console.log(req.body)
-       if(error) { 
-           const registerErrors = Object.keys(error.errors).map(key => error.errors[key].message);
-            //    req.session.registerErrors = registerErrors;
-            req.flash('registerErrors', registerErrors)
-            req.flash('data', req.body)
-           return res.redirect('/register');
-        }
-        res.redirect('/auth/login')
-    })
-})
-
-app.get('/auth/logout', (req, res) => {
-    req.session.destroy(() => {
-        res.redirect('/auth/login')
-    })
-})
-
-app.get('/auth/logout', (req, res) => {
-    req.session.destroy(() => {
-        res.redirect('/auth/login')
-    })
-})
-
+// Render
+app.get('/', homePageController);
+app.get('/post/new', createPostController);
+app.get('/post/:id', getPostController)
+app.post('/posts/store', upload.single('image'), storePostMiddleware, storePostController)
+app.get('/auth/login', authMiddleware, loginPageController)
+app.post('/users/login', checkLoginUserController);
+app.get('/register', authMiddleware, registerPageController)
+app.post('/users/register', createUserController)
+app.get('/auth/logout', logoutController)
 app.use((req, res) => {
     res.render('not-found')
 })
