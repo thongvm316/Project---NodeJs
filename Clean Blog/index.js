@@ -3,9 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
-const bcrypt = require('bcrypt');
 const expressSession = require('express-session');
-const connectMongo = require('connect-mongo');
+const connectMongo = require('connect-mongo'); // store session
 const connectFlah = require('connect-flash');
 
 // Controllers
@@ -19,15 +18,10 @@ const registerPageController = require('./controllers/registerpage');
 const createUserController = require('./controllers/createuser');
 const logoutController = require('./controllers/logout');
 
-
 // Middleware
 const storePostMiddleware = require('./middleware/storePost')
 const authMiddleware = require('./middleware/auth')
-// const checkHomePageMiddleware = require('./middleware/checkHomePage');
-
-// Model Mongoose
-const Post = require('./models/Post');
-const User = require('./models/User');
+const checkHomePageMiddleware = require('./middleware/checkHomePage');
 
 const app = new express();
 
@@ -62,21 +56,20 @@ app.use(expressSession({
 app.use(express.static('public'));
 
 // Render
-app.get('/', homePageController);
-app.get('/post/new', createPostController);
-app.get('/post/:id', getPostController)
+app.get('/', checkHomePageMiddleware, homePageController); //
+app.get('/post/new', createPostController); //
+app.get('/post/:id', getPostController)//
 app.post('/posts/store', upload.single('image'), storePostMiddleware, storePostController)
-app.get('/auth/login', authMiddleware, loginPageController)
-app.post('/users/login', checkLoginUserController);
-app.get('/register', authMiddleware, registerPageController)
-app.post('/users/register', createUserController)
-app.get('/auth/logout', logoutController)
+app.get('/auth/login', authMiddleware, loginPageController) //
+app.post('/users/login', checkLoginUserController); //
+app.get('/register', authMiddleware, registerPageController) // 
+app.post('/users/register', createUserController) //
+app.get('/auth/logout', logoutController) // 
 app.use((req, res) => {
-    res.render('not-found')
+    res.render('not-found') //
 })
 
 const port = 4000;
 app.listen(4000, () => {
     console.log(`Port: ${port}`);
-    
 })
